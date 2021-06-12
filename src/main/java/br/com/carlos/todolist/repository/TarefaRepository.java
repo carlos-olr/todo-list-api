@@ -2,14 +2,11 @@
 package br.com.carlos.todolist.repository;
 
 
-
-import static br.com.carlos.todolist.model.Tarefa.CACHE_FIND_TAREFAS_BY_ID_USUARIO;
-
 import java.util.Set;
 
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import br.com.carlos.todolist.model.Tarefa;
@@ -21,11 +18,13 @@ import br.com.carlos.todolist.model.Tarefa;
 @Repository
 public interface TarefaRepository extends JpaRepository<Tarefa, Long> {
 
-    @Cacheable(CACHE_FIND_TAREFAS_BY_ID_USUARIO)
-    Set<Tarefa> findByIdUsuario(int customerId);
+    @Query("from Tarefa tarefa where tarefa.usuario.id = :usuarioId order by tarefa.status, tarefa.dataAlteracao")
+    Set<Tarefa> findByUsuarioIdOrderByStatusAndDataAlteracao(@Param("usuarioId") Long usuarioId);
+
+    @Query("from Tarefa tarefa order by tarefa.status, tarefa.dataAlteracao")
+    Set<Tarefa> findAllOrderByStatusAndDataAlteracao();
 
     @Override
-    @CacheEvict(value = CACHE_FIND_TAREFAS_BY_ID_USUARIO, key = "tarefa")
     <S extends Tarefa> S save(S tarefa);
 
 }
