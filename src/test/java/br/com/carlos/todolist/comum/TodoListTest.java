@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -50,7 +51,7 @@ public abstract class TodoListTest {
     @Autowired
     protected TarefaService tarefaService;
 
-    @Before
+    @BeforeEach
     public void limparCenario() {
         this.tarefaRepository.deleteAll();
         this.usuarioRepository.deleteAll();

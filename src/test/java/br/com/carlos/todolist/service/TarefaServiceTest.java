@@ -7,14 +7,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Date;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import br.com.carlos.todolist.comum.TodoListTest;
 import br.com.carlos.todolist.exception.BadRequestException;
@@ -26,7 +25,6 @@ import lombok.SneakyThrows;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@RunWith(SpringRunner.class)
 public class TarefaServiceTest extends TodoListTest {
 
     @Test
@@ -75,8 +73,8 @@ public class TarefaServiceTest extends TodoListTest {
         assertNotEquals(dataBase, tarefaBD.getDataAlteracao());
     }
 
+    @Test
     @SneakyThrows
-    @Test(expected = BadRequestException.class)
     public void editarTarefa_idNaoExistente() {
         Usuario usuario = this.criarUsuario("user", "teste");
 
@@ -87,11 +85,16 @@ public class TarefaServiceTest extends TodoListTest {
         Tarefa tarefa = this.criarTarefa("t1", "d1", usuario, PENDING, dataBase, dataBase).clone();
         tarefa.setId(250L);
 
-        this.tarefaService.salvarTarefa(tarefa);
+        try {
+            this.tarefaService.salvarTarefa(tarefa);
+            fail();
+        } catch (BadRequestException ex) {
+            assertEquals("Não foi encontrada tarefa com o id \"250\"", ex.getMessage());
+        }
     }
 
+    @Test
     @SneakyThrows
-    @Test(expected = BadRequestException.class)
     public void editarTarefa_usuarioNaoPodeAlterarTarefa() {
         Usuario usuario = this.criarUsuario("user", "teste");
         this.contextoUsuario.set(usuario);
@@ -103,7 +106,12 @@ public class TarefaServiceTest extends TodoListTest {
         Usuario outroUsuario = this.criarUsuario("user1", "teste1");
         this.contextoUsuario.set(outroUsuario);
 
-        this.tarefaService.salvarTarefa(tarefa);
+        try {
+            this.tarefaService.salvarTarefa(tarefa);
+            fail();
+        } catch (BadRequestException ex) {
+            assertEquals("Usuário não pode manipular a tareva pois a mesma pertence a outro usuário", ex.getMessage());
+        }
     }
 
     @SneakyThrows
@@ -121,8 +129,8 @@ public class TarefaServiceTest extends TodoListTest {
         assertTrue(this.tarefaRepository.findById(tarefa.getId()).isEmpty());
     }
 
+    @Test
     @SneakyThrows
-    @Test(expected = BadRequestException.class)
     public void deletarTarefa_idNaoExistente() {
         Usuario usuario = this.criarUsuario("user", "teste");
 
@@ -133,11 +141,16 @@ public class TarefaServiceTest extends TodoListTest {
         Tarefa tarefa = this.criarTarefa("t1", "d1", usuario, PENDING, dataBase, dataBase).clone();
         tarefa.setId(250L);
 
-        this.tarefaService.deletar(tarefa);
+        try {
+            this.tarefaService.deletar(tarefa);
+            fail();
+        } catch (BadRequestException ex) {
+            assertEquals("Não foi encontrada tarefa com o id \"250\"", ex.getMessage());
+        }
     }
 
+    @Test
     @SneakyThrows
-    @Test(expected = BadRequestException.class)
     public void deletarTarefa_usuarioNaoPodeAlterarTarefa() {
         Usuario usuario = this.criarUsuario("user", "teste");
         this.contextoUsuario.set(usuario);
@@ -149,7 +162,12 @@ public class TarefaServiceTest extends TodoListTest {
         Usuario outroUsuario = this.criarUsuario("user1", "teste1");
         this.contextoUsuario.set(outroUsuario);
 
-        this.tarefaService.deletar(tarefa);
+        try {
+            this.tarefaService.deletar(tarefa);
+            fail();
+        } catch (BadRequestException ex) {
+            assertEquals("Usuário não pode manipular a tareva pois a mesma pertence a outro usuário", ex.getMessage());
+        }
     }
 
     @Test
