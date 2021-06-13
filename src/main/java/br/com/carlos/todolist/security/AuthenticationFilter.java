@@ -24,6 +24,8 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.SneakyThrows;
+
 
 /**
  * @author carlos.oliveira
@@ -38,17 +40,14 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         setFilterProcessesUrl("/auth");
     }
 
+    @SneakyThrows
     @Override
     public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res)
             throws AuthenticationException {
-        try {
-            User creds = new ObjectMapper().readValue(req.getInputStream(), User.class);
+        User creds = new ObjectMapper().readValue(req.getInputStream(), User.class);
 
-            return this.authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(creds.getLogin(), creds.getPassword(), new ArrayList<>()));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return this.authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(creds.getLogin(), creds.getPassword(), new ArrayList<>()));
     }
 
     @Override

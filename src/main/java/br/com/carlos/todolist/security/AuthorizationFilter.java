@@ -50,7 +50,6 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
         String token = request.getHeader(HEADER);
 
         if (token != null) {
-            // parse the token.
             String user = JWT.require(Algorithm.HMAC512(SECRET.getBytes()))
                     .build()
                     .verify(token.replace(TOKEN_PREFIX, ""))

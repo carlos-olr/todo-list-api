@@ -1,14 +1,3 @@
-/*
- * Copyright (c) 1999-2020 Touch Tecnologia e Informatica Ltda.
- * Gomes de Carvalho, 1666, 3o. Andar, Vila Olimpia, Sao Paulo, SP, Brasil.
- * Todos os direitos reservados.
- *
- * Este software e confidencial e de propriedade da Touch Tecnologia e
- * Informatica Ltda. (Informacao Confidencial). As informacoes contidas neste
- * arquivo nao podem ser publicadas, e seu uso esta limitado de acordo com os
- * termos do contrato de licenca.
- */
-
 package br.com.carlos.todolist.model;
 
 
@@ -17,8 +6,6 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -27,6 +14,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+
+import org.apache.commons.lang3.SerializationUtils;
 
 import br.com.carlos.todolist.model.comum.Json;
 
@@ -57,7 +46,7 @@ public class Tarefa extends Json implements Serializable {
     @SequenceGenerator(name = "SEQ_TAREFAS", sequenceName = "SEQ_TDL_TAREFA", allocationSize = 10, initialValue = 10)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "ID_USUARIO")
     private Usuario usuario;
 
@@ -66,28 +55,36 @@ public class Tarefa extends Json implements Serializable {
     private Date dataInclusao;
 
     @Column(name = "RESUMO")
-    private String reusmo;
+    private String resumo;
 
     @Column(name = "DESCRICAO")
     private String descricao;
 
     @JsonIgnore
-    @Column(name = "STATUS")
-    private int status;
+    @Column(name = "CODIGO_STATUS")
+    private Integer codigoStatus;
 
     @Column(name = "DATA_ALTERACAO")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private Date dataAlteracao;
 
     @Transient
-    @JsonIgnore
-    public StatusTarefa getStatusTarefa() {
-        return StatusTarefa.valueOf(this.status);
+    private StatusTarefa status;
+
+    public StatusTarefa getStatus() {
+        if (this.status == null && this.codigoStatus != null) {
+            this.status = StatusTarefa.valueOf(this.codigoStatus);
+        }
+        return this.status;
     }
 
     @SneakyThrows
     public static Tarefa fromJson(String tarefaStr) {
         return new ObjectMapper().readValue(tarefaStr, Tarefa.class);
+    }
+
+    public Tarefa clone() {
+        return SerializationUtils.clone(this);
     }
 
 }

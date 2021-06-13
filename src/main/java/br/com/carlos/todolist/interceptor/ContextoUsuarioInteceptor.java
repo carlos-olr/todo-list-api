@@ -1,8 +1,6 @@
 package br.com.carlos.todolist.interceptor;
 
 
-import java.util.Base64;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -15,7 +13,6 @@ import br.com.carlos.todolist.model.Usuario;
 import br.com.carlos.todolist.security.ContextoUsuario;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.interfaces.DecodedJWT;
 
 
 /**
@@ -31,11 +28,12 @@ public class ContextoUsuarioInteceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
         String authorization = request.getHeader("Authorization");
+        if (authorization != null) {
+            String token = authorization.split("\\s")[1];
+            Usuario usuario = Usuario.fromJson(JWT.decode(token).getSubject());
 
-        String token = authorization.split("\\s")[1];
-        Usuario usuario = Usuario.fromJson(JWT.decode(token).getSubject());
-
-        this.contextoUsuario.set(usuario);
+            this.contextoUsuario.set(usuario);
+        }
 
         return true;
     }

@@ -13,12 +13,14 @@ import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import org.apache.commons.lang3.SerializationUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import br.com.carlos.todolist.model.comum.Json;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.istack.NotNull;
 
@@ -47,11 +49,8 @@ public class Usuario extends Json implements Serializable, UserDetails {
     @Column(name = "LOGIN")
     private String login;
 
-    @NotNull
-    @Column(name = "PASSWORD")
     private String password;
 
-    @JsonIgnore
     @Column(name = "SUPER_USER")
     private Boolean superUser = false;
 
@@ -62,6 +61,27 @@ public class Usuario extends Json implements Serializable, UserDetails {
 
     public Usuario(String login, String password, Boolean superUser) {
         this(login, password);
+        this.superUser = superUser;
+    }
+
+    @NotNull
+    @JsonIgnore
+    @Column(name = "PASSWORD")
+    public String getPassword() {
+        return password;
+    }
+
+    @JsonProperty
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Boolean getSuperUser() {
+        return superUser;
+    }
+
+    @JsonProperty
+    public void setSuperUser(Boolean superUser) {
         this.superUser = superUser;
     }
 
@@ -104,5 +124,9 @@ public class Usuario extends Json implements Serializable, UserDetails {
     @SneakyThrows
     public static Usuario fromJson(String usuarioStr) {
         return new ObjectMapper().readValue(usuarioStr, Usuario.class);
+    }
+
+    public Usuario clone() {
+        return SerializationUtils.clone(this);
     }
 }

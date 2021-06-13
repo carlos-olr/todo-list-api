@@ -2,10 +2,6 @@
 package br.com.carlos.todolist.service;
 
 
-import static java.util.Locale.getDefault;
-
-import java.nio.file.attribute.UserPrincipal;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -44,9 +40,15 @@ public class UsuarioService extends MessagesService implements UserDetailsServic
             throw new BadRequestException(this.getMessage("UsuarioService.passwordObrigatorio"));
         }
 
-        usuario.setPassword(this.bCryptPasswordEncoder.encode(usuario.getPassword()));
+        Usuario clone = usuario.clone();
 
-        return this.usuarioRepository.save(usuario);
+        clone.setPassword(this.bCryptPasswordEncoder.encode(clone.getPassword()));
+
+        clone = this.usuarioRepository.save(clone);
+
+        usuario.setId(clone.getId());
+
+        return usuario;
     }
 
     @Override

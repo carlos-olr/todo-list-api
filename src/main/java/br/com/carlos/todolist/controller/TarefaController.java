@@ -2,7 +2,6 @@ package br.com.carlos.todolist.controller;
 
 
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,8 +15,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.carlos.todolist.model.Tarefa;
-import br.com.carlos.todolist.model.Usuario;
-import br.com.carlos.todolist.security.ContextoUsuario;
 import br.com.carlos.todolist.service.TarefaService;
 
 
@@ -35,7 +32,7 @@ public class TarefaController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public @ResponseBody Set<Tarefa> listarTarefas() {
+    public @ResponseBody List<Tarefa> listarTarefas() {
         return this.tarefaService.buscarTarefas();
     }
 

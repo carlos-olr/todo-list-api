@@ -1,61 +1,43 @@
 package br.com.carlos.todolist.controller;
 
 
+import static br.com.carlos.todolist.model.StatusTarefa.COMPLETED;
+import static br.com.carlos.todolist.model.StatusTarefa.PENDING;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import java.util.List;
+
+import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import br.com.carlos.todolist.model.StatusTarefa;
+import br.com.carlos.todolist.comum.TodoListTest;
 import br.com.carlos.todolist.model.Tarefa;
 import br.com.carlos.todolist.model.Usuario;
-import br.com.carlos.todolist.repository.TarefaRepository;
-import br.com.carlos.todolist.repository.UsuarioRepository;
-import br.com.carlos.todolist.security.User;
-import br.com.carlos.todolist.service.UsuarioService;
-
-import lombok.SneakyThrows;
 
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @RunWith(SpringRunner.class)
-class TarefaControllerTest {
-
-    @Autowired
-    private MockMvc mvc;
-    @Autowired
-    private UsuarioService usuarioService;
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-    @Autowired
-    private TarefaRepository tarefaRepository;
-
-    @BeforeEach
-    public void limparCenario() {
-        this.tarefaRepository.deleteAll();
-        this.usuarioRepository.deleteAll();
-    }
+public class TarefaControllerTest extends TodoListTest {
 
     @Test
     public void criarTarefa() throws Exception {
-        String token = this.getToken("user", "teste");
+        Usuario usuario = this.criarUsuario("user", "teste");
+        String token = this.getToken(usuario);
 
         Tarefa tarefa = new Tarefa();
-        tarefa.setReusmo("resumo");
+        tarefa.setResumo("resumo");
         tarefa.setDescricao("descricao");
 
         MvcResult mvcResult = this.mvc.perform(put("/todo")     //
@@ -67,28 +49,183 @@ class TarefaControllerTest {
 
         Tarefa tarefaRetornada = Tarefa.fromJson(mvcResult.getResponse().getContentAsString());
         assertNotNull(tarefaRetornada.getId());
-        assertNotNull(tarefaRetornada.getStatusTarefa());
-        assertEquals(StatusTarefa.PENDING, tarefaRetornada.getStatusTarefa());
+        assertNotNull(tarefaRetornada.getStatus());
+        assertEquals(PENDING, tarefaRetornada.getStatus());
         assertNotNull(tarefaRetornada.getDataInclusao());
         assertNotNull(tarefaRetornada.getDataAlteracao());
 
         Tarefa tarefaBD = this.tarefaRepository.findById(tarefaRetornada.getId()).get();
         assertNotNull(tarefaBD);
+        assertEquals("resumo", tarefaBD.getResumo());
+        assertEquals("descricao", tarefaBD.getDescricao());
     }
 
-    @SneakyThrows
-    private String getToken(String login, String password) {
-        Usuario usuario = new Usuario(login, password);
+    @Test
+    public void deletarTarefa() throws Exception {
+        Usuario usuario = this.criarUsuario("user", "teste");
+        String token = this.getToken(usuario);
 
-        this.usuarioService.salvar(usuario);
+        Tarefa tarefa = new Tarefa();
+        tarefa.setResumo("resumo");
+        tarefa.setDescricao("descricao");
 
-        MvcResult mvcResult = this.mvc.perform(put("/auth")     //
+        MvcResult mvcResult = this.mvc.perform(put("/todo")     //
                 .contentType(MediaType.APPLICATION_JSON)        //
-                .content(new User(login, password).toJson()))   //
+                .content(tarefa.toJson())                       //
+                .header("Authorization", "Bearer " + token))    //
                 .andExpect(status().isOk())                     //
                 .andReturn();
 
-        return mvcResult.getResponse().getContentAsString();
+        Tarefa tarefaRetornada = Tarefa.fromJson(mvcResult.getResponse().getContentAsString());
+
+        Tarefa tarefaBD = this.tarefaRepository.findById(tarefaRetornada.getId()).get();
+        assertNotNull(tarefaBD);
+
+        this.mvc.perform(delete("/todo") //
+                .contentType(MediaType.APPLICATION_JSON) //
+                .content(tarefaBD.toJson()) //
+                .header("Authorization", "Bearer " + token)) //
+                .andExpect(status().isOk()) //
+                .andReturn();
+
+        assertTrue(this.tarefaRepository.findById(tarefaRetornada.getId()).isEmpty());
+    }
+
+    @Test
+    public void criarTarefa_SemToken() throws Exception {
+        Tarefa tarefa = new Tarefa();
+        tarefa.setResumo("resumo");
+        tarefa.setDescricao("descricao");
+
+        this.mvc.perform(put("/todo")                           //
+                .contentType(MediaType.APPLICATION_JSON)        //
+                .content(tarefa.toJson()))                      //
+                .andExpect(status().isForbidden())              //
+                .andExpect(result -> assertEquals("Acesso não permitido", result.getResponse().getErrorMessage()));
+    }
+
+    @Test
+    public void listarTrefas_pendentesNoTopo() throws Exception {
+        Usuario usuario = this.criarUsuario("user", "teste");
+
+        this.criarTarefa("t1", "tarefa1", usuario, COMPLETED);
+        this.criarTarefa("t2", "tarefa2", usuario, PENDING);
+        this.criarTarefa("t3", "tarefa3", usuario, PENDING);
+
+        assertEquals(3, this.tarefaRepository.findAll().size());
+
+        String token = this.getToken(usuario);
+
+        MvcResult mvcResult = this.mvc.perform(get("/todo")     //
+                .header("Authorization", "Bearer " + token))    //
+                .andExpect(status().isOk())                     //
+                .andReturn();
+
+        List<Tarefa> tarefas = this.getResponseAsObject(mvcResult, Tarefa.class);
+
+        assertEquals(3, tarefas.size());
+        assertEquals(PENDING, tarefas.get(0).getStatus());
+        assertEquals("t2", tarefas.get(0).getResumo());
+        assertEquals(PENDING, tarefas.get(1).getStatus());
+        assertEquals("t3", tarefas.get(1).getResumo());
+        assertEquals(COMPLETED, tarefas.get(2).getStatus());
+        assertEquals("t1", tarefas.get(2).getResumo());
+    }
+
+    @Test
+    public void listarTrefas_tarefasDeOutroUsuarioNaoAparecem() throws Exception {
+        Usuario usuario = this.criarUsuario("user", "teste");
+
+        this.criarTarefa("t1", "tarefa1", usuario, COMPLETED);
+        this.criarTarefa("t2", "tarefa2", usuario, PENDING);
+        this.criarTarefa("t3", "tarefa3", usuario, PENDING);
+
+        assertEquals(3, this.tarefaRepository.findAll().size());
+
+        Usuario outroUsuario = this.criarUsuario("user1", "teste1");
+        String token = this.getToken(outroUsuario);
+
+        MvcResult mvcResult = this.mvc.perform(get("/todo")     //
+                .header("Authorization", "Bearer " + token))    //
+                .andExpect(status().isOk())                     //
+                .andReturn();
+
+        List<Tarefa> tarefas = this.getResponseAsObject(mvcResult, Tarefa.class);
+
+        assertTrue(tarefas.isEmpty());
+    }
+
+    @Test
+    public void listarTrefas_tarefasDeOutrosUsuariosAparecemParaSuperUsuario() throws Exception {
+        Usuario usuario = this.criarUsuario("user", "teste");
+
+        this.criarTarefa("t1", "tarefa1", usuario, COMPLETED);
+        this.criarTarefa("t2", "tarefa2", usuario, PENDING);
+        this.criarTarefa("t3", "tarefa3", usuario, PENDING);
+
+        assertEquals(3, this.tarefaRepository.findAll().size());
+
+        Usuario superUsuario = this.criarSuperUsuario("user1", "teste1");
+        String token = this.getToken(superUsuario);
+
+        MvcResult mvcResult = this.mvc.perform(get("/todo")     //
+                .header("Authorization", "Bearer " + token))    //
+                .andExpect(status().isOk())                     //
+                .andReturn();
+
+        List<Tarefa> tarefas = this.getResponseAsObject(mvcResult, Tarefa.class);
+
+        assertEquals(3, tarefas.size());
+        assertEquals(PENDING, tarefas.get(0).getStatus());
+        assertEquals("t2", tarefas.get(0).getResumo());
+        assertEquals(PENDING, tarefas.get(1).getStatus());
+        assertEquals("t3", tarefas.get(1).getResumo());
+        assertEquals(COMPLETED, tarefas.get(2).getStatus());
+        assertEquals("t1", tarefas.get(2).getResumo());
+    }
+
+    @Test
+    public void listarTraefas_semToken() throws Exception {
+        Usuario usuario = this.criarUsuario("user", "teste");
+
+        this.criarTarefa("t1", "tarefa1", usuario, COMPLETED);
+        this.criarTarefa("t2", "tarefa2", usuario, PENDING);
+        this.criarTarefa("t3", "tarefa3", usuario, PENDING);
+
+        assertEquals(3, this.tarefaRepository.findAll().size());
+
+        this.mvc.perform(get("/todo")) //
+                .andExpect(status().isForbidden())
+                .andExpect(result -> assertEquals("Acesso não permitido", result.getResponse().getErrorMessage()));
+
+    }
+
+    @Test
+    public void listarTrefas_pendentesNoTopoMaisOrdenacaoPorData() throws Exception {
+        Usuario usuario = this.criarUsuario("user", "teste");
+
+        this.criarTarefa("t1", "tarefa1", usuario, COMPLETED);
+        this.criarTarefa("t2", "tarefa2", usuario, PENDING, "2021-01-05 00:00:00", "2021-01-05 00:00:00");
+        this.criarTarefa("t3", "tarefa3", usuario, PENDING, "2021-01-01 00:00:00", "2021-01-01 00:00:00");
+
+        assertEquals(3, this.tarefaRepository.findAll().size());
+
+        String token = this.getToken(usuario);
+
+        MvcResult mvcResult = this.mvc.perform(get("/todo")     //
+                .header("Authorization", "Bearer " + token))    //
+                .andExpect(status().isOk())                     //
+                .andReturn();
+
+        List<Tarefa> tarefas = this.getResponseAsObject(mvcResult, Tarefa.class);
+
+        assertEquals(3, tarefas.size());
+        assertEquals(PENDING, tarefas.get(0).getStatus());
+        assertEquals("t3", tarefas.get(0).getResumo());
+        assertEquals(PENDING, tarefas.get(1).getStatus());
+        assertEquals("t2", tarefas.get(1).getResumo());
+        assertEquals(COMPLETED, tarefas.get(2).getStatus());
+        assertEquals("t1", tarefas.get(2).getResumo());
     }
 
 }
