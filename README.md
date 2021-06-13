@@ -76,7 +76,7 @@ Retorno
 eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ7XCJsb2dpblwiOlwiY2FybG9zb2xpdmVpcmFcIn0iLCJleHAiOjE2MjM2MDk1OTd9.yki9ot33Uv9tKcyhO4OCfCgHWw9R0Y_35DsQhV8zoXM9MUJfuCx76CZpZtcwKg2pOGEQg-0JOlZ0jrP-J3Ou_Q
 ```
 
-#### PUT /todo
+#### PUT /todo ou POST /todo/{id}
 Criação e atualização de tarefas, Para se atualizar é necessário informar o ID da tarefa, só é possível alterar tarefas que perteçam ao usuário do token
 ```sh
 curl --location --request PUT 'localhost:8080/todo' \
@@ -140,7 +140,7 @@ Retorno
 ]
 ```
 
-#### DELETE /todo
+#### DELETE /todo ou /todo/{id}
 Api para deletar tarefas existente que perteçam ao usuário o token informado
 ```sh
 curl --location --request DELETE 'localhost:8080/todo' \
