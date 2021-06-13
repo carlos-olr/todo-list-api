@@ -225,4 +225,52 @@ public class TarefaControllerTest extends TodoListTest {
         assertEquals("t1", tarefas.get(2).getResumo());
     }
 
+    @Test
+    public void listarTrefas_pendentes() throws Exception {
+        Usuario usuario = this.criarUsuario("user", "teste");
+
+        this.criarTarefa("t1", "tarefa1", usuario, COMPLETED);
+        this.criarTarefa("t2", "tarefa2", usuario, PENDING);
+
+        assertEquals(2, this.tarefaRepository.findAll().size());
+
+        String token = this.getToken(usuario);
+
+        MvcResult mvcResult = this.mvc.perform(get("/todo") //
+                .param("status", "PENDING") //
+                .header("Authorization", "Bearer " + token)) //
+                .andExpect(status().isOk()) //
+                .andReturn();
+
+        List<Tarefa> tarefas = this.getResponseAsObject(mvcResult, Tarefa.class);
+
+        assertEquals(1, tarefas.size());
+        assertEquals(PENDING, tarefas.get(0).getStatus());
+        assertEquals("t2", tarefas.get(0).getResumo());
+    }
+
+    @Test
+    public void listarTrefas_completas() throws Exception {
+        Usuario usuario = this.criarUsuario("user", "teste");
+
+        this.criarTarefa("t1", "tarefa1", usuario, COMPLETED);
+        this.criarTarefa("t2", "tarefa2", usuario, PENDING);
+
+        assertEquals(2, this.tarefaRepository.findAll().size());
+
+        String token = this.getToken(usuario);
+
+        MvcResult mvcResult = this.mvc.perform(get("/todo") //
+                .param("status", "COMPLETED") //
+                .header("Authorization", "Bearer " + token)) //
+                .andExpect(status().isOk()) //
+                .andReturn();
+
+        List<Tarefa> tarefas = this.getResponseAsObject(mvcResult, Tarefa.class);
+
+        assertEquals(1, tarefas.size());
+        assertEquals(COMPLETED, tarefas.get(0).getStatus());
+        assertEquals("t1", tarefas.get(0).getResumo());
+    }
+
 }

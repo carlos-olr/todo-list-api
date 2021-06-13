@@ -40,13 +40,16 @@ public class UsuarioService extends MessagesService implements UserDetailsServic
             throw new BadRequestException(this.getMessage("UsuarioService.passwordObrigatorio"));
         }
 
-        Usuario clone = usuario.clone();
+        Usuario usuarioParaAlteracao = this.usuarioRepository.findByLogin(usuario.getLogin());
+        if (usuarioParaAlteracao == null) {
+            usuarioParaAlteracao = usuario.clone();
+        }
 
-        clone.setPassword(this.bCryptPasswordEncoder.encode(clone.getPassword()));
+        usuarioParaAlteracao.setPassword(this.bCryptPasswordEncoder.encode(usuarioParaAlteracao.getPassword()));
 
-        clone = this.usuarioRepository.save(clone);
+        usuarioParaAlteracao = this.usuarioRepository.save(usuarioParaAlteracao);
 
-        usuario.setId(clone.getId());
+        usuario.setId(usuarioParaAlteracao.getId());
 
         return usuario;
     }

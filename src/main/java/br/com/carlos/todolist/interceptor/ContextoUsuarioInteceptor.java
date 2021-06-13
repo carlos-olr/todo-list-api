@@ -10,7 +10,9 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import br.com.carlos.todolist.model.Usuario;
+import br.com.carlos.todolist.repository.UsuarioRepository;
 import br.com.carlos.todolist.security.ContextoUsuario;
+import br.com.carlos.todolist.service.UsuarioService;
 
 import com.auth0.jwt.JWT;
 
@@ -23,6 +25,8 @@ public class ContextoUsuarioInteceptor implements HandlerInterceptor {
 
     @Autowired
     private ContextoUsuario contextoUsuario;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -32,7 +36,9 @@ public class ContextoUsuarioInteceptor implements HandlerInterceptor {
             String token = authorization.split("\\s")[1];
             Usuario usuario = Usuario.fromJson(JWT.decode(token).getSubject());
 
-            this.contextoUsuario.set(usuario);
+            Usuario usuaarioBD = this.usuarioRepository.findByLogin(usuario.getLogin());
+
+            this.contextoUsuario.set(usuaarioBD);
         }
 
         return true;

@@ -10,10 +10,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.carlos.todolist.model.StatusTarefa;
 import br.com.carlos.todolist.model.Tarefa;
 import br.com.carlos.todolist.service.TarefaService;
 
@@ -32,8 +34,9 @@ public class TarefaController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public @ResponseBody List<Tarefa> listarTarefas() {
-        return this.tarefaService.buscarTarefas();
+    public @ResponseBody List<Tarefa> listarTarefas(@RequestParam(value = "status", required = false)
+            List<StatusTarefa> statusTarefas) {
+        return this.tarefaService.buscarTarefas(statusTarefas);
     }
 
     @PutMapping

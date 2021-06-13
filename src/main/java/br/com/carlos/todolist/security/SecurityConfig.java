@@ -1,6 +1,7 @@
 package br.com.carlos.todolist.security;
 
 
+import static br.com.carlos.todolist.security.SecurityConstantes.LOGIN_URL;
 import static br.com.carlos.todolist.security.SecurityConstantes.SIGN_UP_URL;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,10 +36,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
         http.cors().and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
-                    .antMatchers(HttpMethod.PUT, SIGN_UP_URL).permitAll()
-                    .anyRequest().authenticated()
+                    .antMatchers("/todo/**").authenticated()
+                    .anyRequest().permitAll()
                 .and()
-                .addFilter(new AuthenticationFilter(authenticationManager()))
+                .addFilter(new AuthenticationFilter(authenticationManager(), this.bCryptPasswordEncoder))
                 .addFilter(new AuthorizationFilter(authenticationManager()))
                 .exceptionHandling().authenticationEntryPoint(this.authenticationForbidden).and()
                 .csrf().disable();

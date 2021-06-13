@@ -1,4 +1,3 @@
-
 package br.com.carlos.todolist.repository;
 
 
@@ -18,10 +17,13 @@ import br.com.carlos.todolist.model.Tarefa;
 @Repository
 public interface TarefaRepository extends JpaRepository<Tarefa, Long> {
 
-    @Query("from Tarefa tarefa where tarefa.usuario.id = :usuarioId order by tarefa.codigoStatus, tarefa.dataInclusao asc")
-    List<Tarefa> findByUsuarioIdOrderByStatusAndDataInclusao(@Param("usuarioId") Long usuarioId);
+    @Query("from Tarefa tarefa where tarefa.usuario.id = :usuarioId and tarefa.codigoStatus in (:codigosStatus) "
+            + "order by tarefa.codigoStatus, tarefa.dataInclusao asc")
+    List<Tarefa> findByUsuarioIdOrderByStatusAndDataInclusao(@Param("usuarioId") Long usuarioId,
+            @Param("codigosStatus") List<Integer> codigosStatus);
 
-    @Query("from Tarefa tarefa order by tarefa.codigoStatus, tarefa.dataInclusao asc")
-    List<Tarefa> findAllOrderByStatusAndDataInclusao();
+    @Query("from Tarefa tarefa where tarefa.codigoStatus in (:codigosStatus) "
+            + "order by tarefa.codigoStatus, tarefa.dataInclusao asc")
+    List<Tarefa> findAllOrderByStatusAndDataInclusao(@Param("codigosStatus") List<Integer> codigosStatus);
 
 }

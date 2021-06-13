@@ -41,6 +41,7 @@ import lombok.SneakyThrows;
 public class Usuario extends Json implements Serializable, UserDetails {
 
     @Id
+    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_USUARIO")
     @SequenceGenerator(name = "SEQ_USUARIO", sequenceName = "SEQ_TDL_USUARIO", allocationSize = 10, initialValue = 10)
     private Long id;
@@ -51,6 +52,7 @@ public class Usuario extends Json implements Serializable, UserDetails {
 
     private String password;
 
+    @JsonIgnore
     @Column(name = "SUPER_USER")
     private Boolean superUser = false;
 
@@ -74,15 +76,6 @@ public class Usuario extends Json implements Serializable, UserDetails {
     @JsonProperty
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public Boolean getSuperUser() {
-        return superUser;
-    }
-
-    @JsonProperty
-    public void setSuperUser(Boolean superUser) {
-        this.superUser = superUser;
     }
 
     @Override

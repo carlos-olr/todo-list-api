@@ -2,6 +2,10 @@ package br.com.carlos.todolist.model;
 
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.google.common.collect.Lists;
 
 
 /**
@@ -39,5 +43,13 @@ public enum StatusTarefa implements Serializable {
             default:
                 return null;
         }
+    }
+
+    public static List<Integer> getTodosOsCodigos() {
+        return getCodigos(Lists.newArrayList(values()));
+    }
+
+    public static List<Integer> getCodigos(List<StatusTarefa> statusTarefas) {
+        return statusTarefas.stream().map(StatusTarefa::getCodigo).collect(Collectors.toList());
     }
 }

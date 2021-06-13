@@ -45,6 +45,7 @@ public class TarefaService extends MessagesService {
 
             tarefa.setCodigoStatus(tarefa.getStatus().getCodigo());
             tarefa.setDataAlteracao(agora);
+            tarefa.setUsuario(usuarioLogado);
         }
 
         if (tarefa.getStatus() == null) {
@@ -58,12 +59,24 @@ public class TarefaService extends MessagesService {
 
     @Transactional(readOnly = true)
     public List<Tarefa> buscarTarefas() {
-        Usuario usuarioLogado = this.contextoUsuario.getContext();
+        return this.buscarTarefas(null);
+    }
 
-        if (BooleanUtils.isTrue(usuarioLogado.getSuperUser())) {
-            return this.tarefaRepository.findAllOrderByStatusAndDataInclusao();
+    @Transactional(readOnly = true)
+    public List<Tarefa> buscarTarefas(List<StatusTarefa> statusConsiderados) {
+        Usuario usuario = this.contextoUsuario.getContext();
+
+        List<Integer> codigoStatus;
+        if (statusConsiderados == null || statusConsiderados.isEmpty()) {
+            codigoStatus = StatusTarefa.getTodosOsCodigos();
         } else {
-            return this.tarefaRepository.findByUsuarioIdOrderByStatusAndDataInclusao(usuarioLogado.getId());
+            codigoStatus = StatusTarefa.getCodigos(statusConsiderados);
+        }
+
+        if (BooleanUtils.isTrue(usuario.getSuperUser())) {
+            return this.tarefaRepository.findAllOrderByStatusAndDataInclusao(codigoStatus);
+        } else {
+            return this.tarefaRepository.findByUsuarioIdOrderByStatusAndDataInclusao(usuario.getId(), codigoStatus);
         }
     }
 

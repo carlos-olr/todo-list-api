@@ -43,7 +43,6 @@ public class UsuarioControllerTest extends TodoListTest {
                 .andReturn();
 
         Usuario usuarioRetornado = Usuario.fromJson(mvcResult.getResponse().getContentAsString());
-        assertNotNull(usuarioRetornado.getId());
         assertNotNull(usuarioRetornado.getLogin());
         assertNull(usuarioRetornado.getPassword());
 

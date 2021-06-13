@@ -2,6 +2,7 @@ package br.com.carlos.todolist.security;
 
 
 import static br.com.carlos.todolist.security.SecurityConstantes.EXPIRATION_TIME;
+import static br.com.carlos.todolist.security.SecurityConstantes.LOGIN_URL;
 import static br.com.carlos.todolist.security.SecurityConstantes.SECRET;
 
 import java.io.IOException;
@@ -16,6 +17,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import br.com.carlos.todolist.model.Usuario;
@@ -33,11 +35,14 @@ import lombok.SneakyThrows;
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private AuthenticationManager authenticationManager;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public AuthenticationFilter(AuthenticationManager authenticationManager) {
+    public AuthenticationFilter(AuthenticationManager authenticationManager,
+            BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.authenticationManager = authenticationManager;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 
-        setFilterProcessesUrl("/auth");
+        setFilterProcessesUrl(LOGIN_URL);
     }
 
     @SneakyThrows
@@ -46,8 +51,8 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             throws AuthenticationException {
         User creds = new ObjectMapper().readValue(req.getInputStream(), User.class);
 
-        return this.authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(creds.getLogin(), creds.getPassword(), new ArrayList<>()));
+        return this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(creds.getLogin(),
+                creds.getPassword(), new ArrayList<>()));
     }
 
     @Override

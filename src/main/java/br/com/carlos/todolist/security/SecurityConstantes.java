@@ -11,5 +11,6 @@ public class SecurityConstantes {
     public static final String TOKEN_PREFIX = "Bearer ";
     public static final String HEADER = "Authorization";
     public static final String SIGN_UP_URL = "/user";
+    public static final String LOGIN_URL = "/auth";
 
 }

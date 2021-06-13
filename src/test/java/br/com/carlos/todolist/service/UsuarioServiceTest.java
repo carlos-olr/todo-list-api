@@ -27,26 +27,27 @@ import lombok.SneakyThrows;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class TarefaServiceTest extends TodoListTest {
+public class UsuarioServiceTest extends TodoListTest {
 
     @Test
-    public void criarTarefa() {
-        Usuario usuario = this.criarUsuario("user", "teste");
+    public void criarUsuario_consideraIdParaAtualizar() {
+        Usuario usuario = new Usuario("user", "teste");
 
-        this.contextoUsuario.set(usuario);
+        this.usuarioService.salvar(usuario);
 
-        Tarefa tarefa = new Tarefa();
-        tarefa.setResumo("resumo");
-        tarefa.setDescricao("descricao");
+        List<Usuario> salvosBD = this.usuarioRepository.findAll();
 
-        Long id = this.tarefaService.salvarTarefa(tarefa).getId();
+        assertEquals(salvosBD.size(), 1);
+        assertEquals("user", salvosBD.get(0).getLogin());
 
-        Tarefa tarefaBD = this.tarefaRepository.findById(id).get();
-        assertNotNull(tarefaBD);
-        assertEquals("resumo", tarefaBD.getResumo());
-        assertEquals("descricao", tarefaBD.getDescricao());
-        assertEquals(0, (int) tarefaBD.getCodigoStatus());
-        assertEquals(PENDING, tarefaBD.getStatus());
+        usuario = new Usuario("user", "teste1010");
+
+        this.usuarioService.salvar(usuario);
+
+        salvosBD = this.usuarioRepository.findAll();
+
+        assertEquals(salvosBD.size(), 1);
+        assertEquals("user", salvosBD.get(0).getLogin());
     }
 
     @Test
