@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import br.com.carlos.todolist.model.Usuario;
 import br.com.carlos.todolist.repository.UsuarioRepository;
-import br.com.carlos.todolist.service.UsuarioService;
 
 
 /**

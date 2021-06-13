@@ -12,6 +12,9 @@ Nesse projeto é criado uma aplicação para gerenciar tarefas, sendo que as tar
 
 O desenvolvimento foi feito com Java 11 + SpringBoot e a execução do sistema é feito de através de scripts encontrado no próprio repositório.
 
+
+**OBS**: O projeto foi criado e testado em Ubuntu, talvez seja necessária alguma customização para plataforma Windows. 
+
 ### Pré-requisitos (Sistema)
 - Java 11 ([openJdk11](https://openjdk.java.net/projects/jdk/11/))
 - Maven 3.2.5+ ([maven](https://maven.apache.org/install.html))
@@ -27,7 +30,7 @@ O desenvolvimento foi feito com Java 11 + SpringBoot e a execução do sistema �
 ### Execução
 O comando a seguir utiliza três etapas para inicialização do sistema:
 ```
-reset && maven clean install && ./build.sh && docker-compose up
+reset && mvn clean install && ./build.sh && docker-compose up
 ```
 
 1. Build utilizando maven com testes
@@ -146,4 +149,13 @@ curl --location --request DELETE 'localhost:8080/todo' \
 --data-raw '{
     "id": 42
 }'
+```
+
+### Usuário Super
+A aplciaçaõ cria por padrão um usuário com "poderes" de listar todas as tarefas de todos os usuários
+```json
+{
+    "login":    "adminSuper",
+    "password": "passwordSuper"
+}
 ```

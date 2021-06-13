@@ -37,16 +37,15 @@ public class TarefaService extends MessagesService {
 
         if (tarefa.getId() == null) {
             tarefa.setDataInclusao(agora);
-            tarefa.setDataAlteracao(agora);
-            tarefa.setUsuario(usuarioLogado);
         } else {
             this.validarSeExisteTarefaComIdPassado(tarefa.getId());
             this.validarSeUsuarioLogadoPodeAlterarTarefa(usuarioLogado, tarefa);
 
             tarefa.setCodigoStatus(tarefa.getStatus().getCodigo());
-            tarefa.setDataAlteracao(agora);
-            tarefa.setUsuario(usuarioLogado);
         }
+
+        tarefa.setDataAlteracao(agora);
+        tarefa.setUsuario(usuarioLogado);
 
         if (tarefa.getStatus() == null) {
             tarefa.setCodigoStatus(StatusTarefa.PENDING.getCodigo());

@@ -12,7 +12,6 @@ import org.springframework.web.servlet.ModelAndView;
 import br.com.carlos.todolist.model.Usuario;
 import br.com.carlos.todolist.repository.UsuarioRepository;
 import br.com.carlos.todolist.security.ContextoUsuario;
-import br.com.carlos.todolist.service.UsuarioService;
 
 import com.auth0.jwt.JWT;
 

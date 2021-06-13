@@ -13,11 +13,12 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import br.com.carlos.todolist.model.Usuario;
@@ -34,13 +35,12 @@ import lombok.SneakyThrows;
  */
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-    private AuthenticationManager authenticationManager;
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    Logger LOGGER = LoggerFactory.getLogger(AuthenticationFilter.class);
 
-    public AuthenticationFilter(AuthenticationManager authenticationManager,
-            BCryptPasswordEncoder bCryptPasswordEncoder) {
+    private final AuthenticationManager authenticationManager;
+
+    public AuthenticationFilter(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 
         setFilterProcessesUrl(LOGIN_URL);
     }
@@ -50,9 +50,16 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res)
             throws AuthenticationException {
         User creds = new ObjectMapper().readValue(req.getInputStream(), User.class);
+        LOGGER.info("GERAR-TOKEN-login - " + creds.getLogin());
 
-        return this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(creds.getLogin(),
-                creds.getPassword(), new ArrayList<>()));
+        try {
+            return this.authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(creds.getLogin(), creds.getPassword(), new ArrayList<>()));
+        } catch (Exception e) {
+            LOGGER.warn("FALHA-GERAR-TOKEN-login - " + creds.getLogin());
+            throw e;
+        }
+
     }
 
     @Override

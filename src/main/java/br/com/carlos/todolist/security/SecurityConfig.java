@@ -1,11 +1,7 @@
 package br.com.carlos.todolist.security;
 
 
-import static br.com.carlos.todolist.security.SecurityConstantes.LOGIN_URL;
-import static br.com.carlos.todolist.security.SecurityConstantes.SIGN_UP_URL;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -39,7 +35,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
                     .antMatchers("/todo/**").authenticated()
                     .anyRequest().permitAll()
                 .and()
-                .addFilter(new AuthenticationFilter(authenticationManager(), this.bCryptPasswordEncoder))
+                .addFilter(new AuthenticationFilter(authenticationManager()))
                 .addFilter(new AuthorizationFilter(authenticationManager()))
                 .exceptionHandling().authenticationEntryPoint(this.authenticationForbidden).and()
                 .csrf().disable();
