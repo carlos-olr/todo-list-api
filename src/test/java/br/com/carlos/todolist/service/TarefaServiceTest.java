@@ -176,7 +176,7 @@ public class TarefaServiceTest extends TodoListTest {
             this.tarefaService.salvarTarefa(tarefa);
             fail();
         } catch (BadRequestException ex) {
-            assertEquals("Usuário não pode manipular a tareva pois a mesma pertence a outro usuário", ex.getMessage());
+            assertEquals("Usuário não pode manipular a tarefa pois a mesma pertence a outro usuário", ex.getMessage());
         }
     }
 
@@ -232,7 +232,7 @@ public class TarefaServiceTest extends TodoListTest {
             this.tarefaService.deletar(tarefa);
             fail();
         } catch (BadRequestException ex) {
-            assertEquals("Usuário não pode manipular a tareva pois a mesma pertence a outro usuário", ex.getMessage());
+            assertEquals("Usuário não pode manipular a tarefa pois a mesma pertence a outro usuário", ex.getMessage());
         }
     }
 
