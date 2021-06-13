@@ -30,6 +30,11 @@ public class TarefaService extends MessagesService {
     @Autowired
     private ContextoUsuario contextoUsuario;
 
+    public Tarefa salvarTarefa(Long id, Tarefa tarefa) {
+        this.validarSeIdsEstaoCorretos(id, tarefa);
+        return this.salvarTarefa(tarefa);
+    }
+
     @Transactional
     public Tarefa salvarTarefa(Tarefa tarefa) {
         Date agora = new Date();
@@ -39,7 +44,7 @@ public class TarefaService extends MessagesService {
             tarefa.setDataInclusao(agora);
         } else {
             this.validarSeExisteTarefaComIdPassado(tarefa.getId());
-            this.validarSeUsuarioLogadoPodeAlterarTarefa(usuarioLogado, tarefa);
+            this.validarSeUsuarioLogadoPodeAlterarTarefa(usuarioLogado, tarefa.getId());
 
             tarefa.setCodigoStatus(tarefa.getStatus().getCodigo());
         }
@@ -80,16 +85,21 @@ public class TarefaService extends MessagesService {
     }
 
     public void deletar(Tarefa tarefa) {
-        this.validarSeExisteTarefaComIdPassado(tarefa.getId());
-
-        Usuario usuarioLogado = this.contextoUsuario.getContext();
-        this.validarSeUsuarioLogadoPodeAlterarTarefa(usuarioLogado, tarefa);
-
-        this.tarefaRepository.deleteById(tarefa.getId());
+        this.deletarPorId(tarefa.getId());
     }
 
-    private void validarSeUsuarioLogadoPodeAlterarTarefa(Usuario usuario, Tarefa tarefa) {
-        Optional<Tarefa> resultadoBusca = this.tarefaRepository.findById(tarefa.getId());
+    public void deletarPorId(Long id) {
+        this.validarSeFoiPassadoUmId(id);
+        this.validarSeExisteTarefaComIdPassado(id);
+
+        Usuario usuarioLogado = this.contextoUsuario.getContext();
+        this.validarSeUsuarioLogadoPodeAlterarTarefa(usuarioLogado, id);
+
+        this.tarefaRepository.deleteById(id);
+    }
+
+    private void validarSeUsuarioLogadoPodeAlterarTarefa(Usuario usuario, Long tarefaId) {
+        Optional<Tarefa> resultadoBusca = this.tarefaRepository.findById(tarefaId);
         if (resultadoBusca.isPresent()) {
             Usuario donoTarefaEncontradaBD = resultadoBusca.get().getUsuario();
             if (!donoTarefaEncontradaBD.getId().equals(usuario.getId())) {
@@ -102,6 +112,21 @@ public class TarefaService extends MessagesService {
         Optional<Tarefa> resultadoBusca = this.tarefaRepository.findById(tarefaId);
         if (resultadoBusca.isEmpty()) {
             throw new BadRequestException(getMessage("TarefaService.tarefaNaoEncontrada", tarefaId));
+        }
+    }
+
+    private void validarSeFoiPassadoUmId(Long tarefaId) {
+        if (tarefaId == null) {
+            throw new BadRequestException(getMessage("TarefaService.idDaTarefaObrigatorio", tarefaId));
+        }
+    }
+
+    private void validarSeIdsEstaoCorretos(Long tarefaId, Tarefa tarefaRecebida) {
+        if (tarefaId == null) {
+            throw new BadRequestException(getMessage("TarefaService.idDaTarefaObrigatorio", tarefaId));
+        }
+        if (tarefaRecebida.getId() == null || !tarefaId.equals(tarefaRecebida.getId()) ) {
+            throw new BadRequestException(getMessage("TarefaService.idDoPathDiferenteDoIdDoBody", tarefaId));
         }
     }
 

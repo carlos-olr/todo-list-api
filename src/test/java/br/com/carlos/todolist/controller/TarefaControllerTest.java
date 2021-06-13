@@ -8,6 +8,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -58,6 +59,38 @@ public class TarefaControllerTest extends TodoListTest {
     }
 
     @Test
+    public void alterarTarefa() throws Exception {
+        Usuario usuario = this.criarUsuario("user", "teste");
+        String token = this.getToken(usuario);
+
+        Tarefa tarefa = new Tarefa();
+        tarefa.setResumo("resumo");
+        tarefa.setDescricao("descricao");
+
+        MvcResult mvcResult = this.mvc.perform(put("/todo")     //
+                .contentType(MediaType.APPLICATION_JSON)        //
+                .content(tarefa.toJson())                       //
+                .header("Authorization", "Bearer " + token))    //
+                .andExpect(status().isOk())                     //
+                .andReturn();
+
+        Tarefa tarefaRetornada = Tarefa.fromJson(mvcResult.getResponse().getContentAsString());
+
+        tarefaRetornada.setStatus(COMPLETED);
+
+        this.mvc.perform(post("/todo/" + tarefaRetornada.getId())     //
+                .contentType(MediaType.APPLICATION_JSON)        //
+                .content(tarefaRetornada.toJson())                       //
+                .header("Authorization", "Bearer " + token))    //
+                .andExpect(status().isOk())                     //
+                .andReturn();
+
+        Tarefa tarefaBD = this.tarefaRepository.findById(tarefaRetornada.getId()).get();
+        assertNotNull(tarefaBD);
+        assertEquals(COMPLETED, tarefaBD.getStatus());
+    }
+
+    @Test
     public void deletarTarefa() throws Exception {
         Usuario usuario = this.criarUsuario("user", "teste");
         String token = this.getToken(usuario);
@@ -81,6 +114,36 @@ public class TarefaControllerTest extends TodoListTest {
         this.mvc.perform(delete("/todo") //
                 .contentType(MediaType.APPLICATION_JSON) //
                 .content(tarefaBD.toJson()) //
+                .header("Authorization", "Bearer " + token)) //
+                .andExpect(status().isOk()) //
+                .andReturn();
+
+        assertTrue(this.tarefaRepository.findById(tarefaRetornada.getId()).isEmpty());
+    }
+
+    @Test
+    public void deletarTarefa_comParametro() throws Exception {
+        Usuario usuario = this.criarUsuario("user", "teste");
+        String token = this.getToken(usuario);
+
+        Tarefa tarefa = new Tarefa();
+        tarefa.setResumo("resumo");
+        tarefa.setDescricao("descricao");
+
+        MvcResult mvcResult = this.mvc.perform(put("/todo")     //
+                .contentType(MediaType.APPLICATION_JSON)        //
+                .content(tarefa.toJson())                       //
+                .header("Authorization", "Bearer " + token))    //
+                .andExpect(status().isOk())                     //
+                .andReturn();
+
+        Tarefa tarefaRetornada = Tarefa.fromJson(mvcResult.getResponse().getContentAsString());
+
+        Tarefa tarefaBD = this.tarefaRepository.findById(tarefaRetornada.getId()).get();
+        assertNotNull(tarefaBD);
+
+        this.mvc.perform(delete("/todo/" + tarefaBD.getId()) //
+                .contentType(MediaType.APPLICATION_JSON) //
                 .header("Authorization", "Bearer " + token)) //
                 .andExpect(status().isOk()) //
                 .andReturn();

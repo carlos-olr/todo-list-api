@@ -77,6 +77,32 @@ public class TarefaServiceTest extends TodoListTest {
 
     @Test
     @SneakyThrows
+    public void editarTarefa_passandoId() {
+        Usuario usuario = this.criarUsuario("user", "teste");
+
+        this.contextoUsuario.set(usuario);
+
+        Date dataBase = dateFormat.parse("2021-01-01 00:00:00");
+
+        Tarefa tarefa = this.criarTarefa("t1", "d1", usuario, PENDING, dataBase, dataBase).clone();
+
+        tarefa.setResumo("t1.modificado");
+        tarefa.setDescricao("d1.modificado");
+
+        this.tarefaService.salvarTarefa(tarefa.getId(), tarefa);
+
+        Tarefa tarefaBD = this.tarefaRepository.findById(tarefa.getId()).get();
+        assertNotNull(tarefaBD);
+        assertEquals("t1.modificado", tarefaBD.getResumo());
+        assertEquals("d1.modificado", tarefaBD.getDescricao());
+        assertEquals(0, (int) tarefaBD.getCodigoStatus());
+        assertEquals(PENDING, tarefaBD.getStatus());
+        assertEquals(dataBase, tarefaBD.getDataInclusao());
+        assertNotEquals(dataBase, tarefaBD.getDataAlteracao());
+    }
+
+    @Test
+    @SneakyThrows
     public void editarTarefa_idNaoExistente() {
         Usuario usuario = this.criarUsuario("user", "teste");
 
@@ -92,6 +118,44 @@ public class TarefaServiceTest extends TodoListTest {
             fail();
         } catch (BadRequestException ex) {
             assertEquals("Não foi encontrada tarefa com o id \"250\"", ex.getMessage());
+        }
+    }
+
+    @Test
+    @SneakyThrows
+    public void editarTarefa_passandoIdErrado() {
+        Usuario usuario = this.criarUsuario("user", "teste");
+
+        this.contextoUsuario.set(usuario);
+
+        Date dataBase = dateFormat.parse("2021-01-01 00:00:00");
+
+        Tarefa tarefa = this.criarTarefa("t1", "d1", usuario, PENDING, dataBase, dataBase).clone();
+
+        try {
+            this.tarefaService.salvarTarefa(250L, tarefa);
+            fail();
+        } catch (BadRequestException ex) {
+            assertEquals("Os IDs do path e do body precisam ser iguais", ex.getMessage());
+        }
+    }
+
+    @Test
+    @SneakyThrows
+    public void editarTarefa_idPathNull() {
+        Usuario usuario = this.criarUsuario("user", "teste");
+
+        this.contextoUsuario.set(usuario);
+
+        Date dataBase = dateFormat.parse("2021-01-01 00:00:00");
+
+        Tarefa tarefa = this.criarTarefa("t1", "d1", usuario, PENDING, dataBase, dataBase).clone();
+
+        try {
+            this.tarefaService.salvarTarefa(null, tarefa);
+            fail();
+        } catch (BadRequestException ex) {
+            assertEquals("É obrigatório informar um ID para deletar/alterar", ex.getMessage());
         }
     }
 
@@ -173,6 +237,26 @@ public class TarefaServiceTest extends TodoListTest {
     }
 
     @Test
+    @SneakyThrows
+    public void deletarTarefa_idNaoPassado() {
+        Usuario usuario = this.criarUsuario("user", "teste");
+
+        this.contextoUsuario.set(usuario);
+
+        Date dataBase = dateFormat.parse("2021-01-01 00:00:00");
+
+        Tarefa tarefa = this.criarTarefa("t1", "d1", usuario, PENDING, dataBase, dataBase).clone();
+        tarefa.setId(250L);
+
+        try {
+            this.tarefaService.deletarPorId(null);
+            fail();
+        } catch (BadRequestException ex) {
+            assertEquals("É obrigatório informar um ID para deletar/alterar", ex.getMessage());
+        }
+    }
+
+    @Test
     public void criarTarefa_completed() throws Exception {
         Usuario usuario = this.criarUsuario("user", "teste");
 
@@ -205,7 +289,7 @@ public class TarefaServiceTest extends TodoListTest {
         this.criarTarefa("t1", "d1", usuario, COMPLETED, dataBase, dataBase);
         this.criarTarefa("t2", "d3", usuario, PENDING, dataBase, dataBase);
 
-        List<Tarefa> tarefas = this.tarefaService.buscarTarefas(null);
+        List<Tarefa> tarefas = this.tarefaService.buscarTarefas();
 
         assertEquals(2, tarefas.size());
         assertEquals("t2", tarefas.get(0).getResumo());
