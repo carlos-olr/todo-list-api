@@ -15,6 +15,8 @@ import br.com.carlos.todolist.service.UsuarioService;
 
 
 /**
+ * Bean para configurações de segurança da aplicação
+ *
  * @author carlos.oliveira
  */
 @EnableWebSecurity
@@ -27,6 +29,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
     @Autowired
     private AuthenticationForbiddenHandler authenticationForbidden;
 
+    /**
+     * Configs gerais de segurança
+     * 1 - todas as requests "/todo" precisam ser autenticadas
+     * 2 - outras requests estão liberadas facilitando a configuração de criação de usuários e geração de token
+     */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and()
@@ -38,16 +45,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
                 .addFilter(new AuthenticationFilter(authenticationManager()))
                 .addFilter(new AuthorizationFilter(authenticationManager()))
                 .exceptionHandling().authenticationEntryPoint(this.authenticationForbidden).and()
-                .csrf().disable();
+                .csrf().disable(); // desabilitei para execução via postman/curl
 
 
     }
 
+    /**
+     * método que faz a ligação {@link UsuarioService}, {@link BCryptPasswordEncoder} com o sistema de segurança
+     */
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(this.usuarioService).passwordEncoder(this.bCryptPasswordEncoder);
     }
 
+    /**
+     * Configuração geral simplificada para CORS
+     */
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**").allowedMethods("*");

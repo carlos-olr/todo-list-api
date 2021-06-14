@@ -31,6 +31,8 @@ import lombok.SneakyThrows;
 
 
 /**
+ * Entidade para representar o conceito de Usuário dentro do sistema
+ *
  * @author carlos.oliveira
  */
 @Getter

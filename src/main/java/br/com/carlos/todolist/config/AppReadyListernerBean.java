@@ -12,6 +12,9 @@ import br.com.carlos.todolist.repository.UsuarioRepository;
 
 
 /**
+ * Bean pra ser executado após o startUp do sistema para aplicar as regras a seguir
+ * - verificação e criação do usuário super
+ *
  * @author carlos.oliveira
  */
 @Component

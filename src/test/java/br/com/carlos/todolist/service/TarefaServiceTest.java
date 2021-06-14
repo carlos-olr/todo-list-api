@@ -33,7 +33,7 @@ public class TarefaServiceTest extends TodoListTest {
     public void criarTarefa() {
         Usuario usuario = this.criarUsuario("user", "teste");
 
-        this.contextoUsuario.set(usuario);
+        this.contextoUsuario.setUsuarioLodado(usuario);
 
         Tarefa tarefa = new Tarefa();
         tarefa.setResumo("resumo");
@@ -54,7 +54,7 @@ public class TarefaServiceTest extends TodoListTest {
     public void editarTarefa() {
         Usuario usuario = this.criarUsuario("user", "teste");
 
-        this.contextoUsuario.set(usuario);
+        this.contextoUsuario.setUsuarioLodado(usuario);
 
         Date dataBase = dateFormat.parse("2021-01-01 00:00:00");
 
@@ -80,7 +80,7 @@ public class TarefaServiceTest extends TodoListTest {
     public void editarTarefa_passandoId() {
         Usuario usuario = this.criarUsuario("user", "teste");
 
-        this.contextoUsuario.set(usuario);
+        this.contextoUsuario.setUsuarioLodado(usuario);
 
         Date dataBase = dateFormat.parse("2021-01-01 00:00:00");
 
@@ -106,7 +106,7 @@ public class TarefaServiceTest extends TodoListTest {
     public void editarTarefa_idNaoExistente() {
         Usuario usuario = this.criarUsuario("user", "teste");
 
-        this.contextoUsuario.set(usuario);
+        this.contextoUsuario.setUsuarioLodado(usuario);
 
         Date dataBase = dateFormat.parse("2021-01-01 00:00:00");
 
@@ -126,7 +126,7 @@ public class TarefaServiceTest extends TodoListTest {
     public void editarTarefa_passandoIdErrado() {
         Usuario usuario = this.criarUsuario("user", "teste");
 
-        this.contextoUsuario.set(usuario);
+        this.contextoUsuario.setUsuarioLodado(usuario);
 
         Date dataBase = dateFormat.parse("2021-01-01 00:00:00");
 
@@ -145,7 +145,7 @@ public class TarefaServiceTest extends TodoListTest {
     public void editarTarefa_idPathNull() {
         Usuario usuario = this.criarUsuario("user", "teste");
 
-        this.contextoUsuario.set(usuario);
+        this.contextoUsuario.setUsuarioLodado(usuario);
 
         Date dataBase = dateFormat.parse("2021-01-01 00:00:00");
 
@@ -163,14 +163,14 @@ public class TarefaServiceTest extends TodoListTest {
     @SneakyThrows
     public void editarTarefa_usuarioNaoPodeAlterarTarefa() {
         Usuario usuario = this.criarUsuario("user", "teste");
-        this.contextoUsuario.set(usuario);
+        this.contextoUsuario.setUsuarioLodado(usuario);
 
         Date dataBase = dateFormat.parse("2021-01-01 00:00:00");
 
         Tarefa tarefa = this.criarTarefa("t1", "d1", usuario, PENDING, dataBase, dataBase).clone();
 
         Usuario outroUsuario = this.criarUsuario("user1", "teste1");
-        this.contextoUsuario.set(outroUsuario);
+        this.contextoUsuario.setUsuarioLodado(outroUsuario);
 
         try {
             this.tarefaService.salvarTarefa(tarefa);
@@ -184,7 +184,7 @@ public class TarefaServiceTest extends TodoListTest {
     public void deletarTarefa() {
         Usuario usuario = this.criarUsuario("user", "teste");
 
-        this.contextoUsuario.set(usuario);
+        this.contextoUsuario.setUsuarioLodado(usuario);
 
         Date dataBase = dateFormat.parse("2021-01-01 00:00:00");
 
@@ -200,7 +200,7 @@ public class TarefaServiceTest extends TodoListTest {
     public void deletarTarefa_idNaoExistente() {
         Usuario usuario = this.criarUsuario("user", "teste");
 
-        this.contextoUsuario.set(usuario);
+        this.contextoUsuario.setUsuarioLodado(usuario);
 
         Date dataBase = dateFormat.parse("2021-01-01 00:00:00");
 
@@ -219,14 +219,14 @@ public class TarefaServiceTest extends TodoListTest {
     @SneakyThrows
     public void deletarTarefa_usuarioNaoPodeAlterarTarefa() {
         Usuario usuario = this.criarUsuario("user", "teste");
-        this.contextoUsuario.set(usuario);
+        this.contextoUsuario.setUsuarioLodado(usuario);
 
         Date dataBase = dateFormat.parse("2021-01-01 00:00:00");
 
         Tarefa tarefa = this.criarTarefa("t1", "d1", usuario, PENDING, dataBase, dataBase).clone();
 
         Usuario outroUsuario = this.criarUsuario("user1", "teste1");
-        this.contextoUsuario.set(outroUsuario);
+        this.contextoUsuario.setUsuarioLodado(outroUsuario);
 
         try {
             this.tarefaService.deletar(tarefa);
@@ -241,7 +241,7 @@ public class TarefaServiceTest extends TodoListTest {
     public void deletarTarefa_idNaoPassado() {
         Usuario usuario = this.criarUsuario("user", "teste");
 
-        this.contextoUsuario.set(usuario);
+        this.contextoUsuario.setUsuarioLodado(usuario);
 
         Date dataBase = dateFormat.parse("2021-01-01 00:00:00");
 
@@ -260,7 +260,7 @@ public class TarefaServiceTest extends TodoListTest {
     public void criarTarefa_completed() throws Exception {
         Usuario usuario = this.criarUsuario("user", "teste");
 
-        this.contextoUsuario.set(usuario);
+        this.contextoUsuario.setUsuarioLodado(usuario);
 
         Tarefa tarefa = new Tarefa();
         tarefa.setResumo("resumo");
@@ -282,7 +282,7 @@ public class TarefaServiceTest extends TodoListTest {
     @SneakyThrows
     public void listarTarefas_todas() {
         Usuario usuario = this.criarUsuario("user", "teste");
-        this.contextoUsuario.set(usuario);
+        this.contextoUsuario.setUsuarioLodado(usuario);
 
         Date dataBase = dateFormat.parse("2021-01-01 00:00:00");
 
@@ -300,7 +300,7 @@ public class TarefaServiceTest extends TodoListTest {
     @SneakyThrows
     public void listarTarefas_Pendentes() {
         Usuario usuario = this.criarUsuario("user", "teste");
-        this.contextoUsuario.set(usuario);
+        this.contextoUsuario.setUsuarioLodado(usuario);
 
         Date dataBase = dateFormat.parse("2021-01-01 00:00:00");
 
@@ -317,7 +317,7 @@ public class TarefaServiceTest extends TodoListTest {
     @SneakyThrows
     public void listarTarefas_Completas() {
         Usuario usuario = this.criarUsuario("user", "teste");
-        this.contextoUsuario.set(usuario);
+        this.contextoUsuario.setUsuarioLodado(usuario);
 
         Date dataBase = dateFormat.parse("2021-01-01 00:00:00");
 

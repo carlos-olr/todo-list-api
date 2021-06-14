@@ -8,6 +8,11 @@ import br.com.carlos.todolist.exception.comum.TodoListException;
 
 
 /**
+ * Exceção interna para BadRequest=400 podendo indicar:
+ * - parâmetro obrigatório não informado
+ * - combinação de parâmetros incorreta
+ * - etc
+ *
  * @author carlos.oliveira
  */
 @ResponseStatus(HttpStatus.BAD_REQUEST)

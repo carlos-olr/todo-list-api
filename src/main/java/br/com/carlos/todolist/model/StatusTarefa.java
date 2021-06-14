@@ -9,22 +9,22 @@ import com.google.common.collect.Lists;
 
 
 /**
- * Enum com possíveis Statis para as tarefas
+ * Enum com possíveis Status para as tarefas
  *
  * @author carlos.oliveira
  */
 public enum StatusTarefa implements Serializable {
 
     /**
-     * Status padrão para taregas recém criadas, indicando que está pendente
+     * Status padrão para tarefas recém criadas, indicando que está pendente
      */
     PENDING(0),
     /**
-     * Status utilizado para marcar que uam tarefa foi concluída
+     * Status utilizado para marcar que uma tarefa foi concluída
      */
     COMPLETED(1);
 
-    private int codigo;
+    private final int codigo;
 
     StatusTarefa(int codigo) {
         this.codigo = codigo;

@@ -289,7 +289,7 @@ public class TarefaControllerTest extends TodoListTest {
     }
 
     @Test
-    public void listarTrefas_pendentes() throws Exception {
+    public void listarTarefas_pendentes() throws Exception {
         Usuario usuario = this.criarUsuario("user", "teste");
 
         this.criarTarefa("t1", "tarefa1", usuario, COMPLETED);

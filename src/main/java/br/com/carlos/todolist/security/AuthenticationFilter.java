@@ -19,6 +19,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import br.com.carlos.todolist.model.Usuario;
@@ -31,6 +33,8 @@ import lombok.SneakyThrows;
 
 
 /**
+ * Filtro para Autenticação de usuários com base em Login e Senha
+ *
  * @author carlos.oliveira
  */
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -39,12 +43,21 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
 
+    /**
+     * Inicialização do filtro indicando a URL padrão para geração de tokens
+     */
     public AuthenticationFilter(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
 
         setFilterProcessesUrl(LOGIN_URL);
     }
 
+    /**
+     * Método que executa a autenticação com base em login e senha, esse método se relaciona diretamente a classe
+     * {@link br.com.carlos.todolist.service.UsuarioService} pela interface {@link UserDetailsService} onde será executado
+     * o método br.com.carlos.todolist.service.UsuarioService#loadUserByUsername(java.lang.String) e após o usuário
+     * ser encontrado será feito o match da senha pelo {@link BCryptPasswordEncoder}
+     */
     @SneakyThrows
     @Override
     public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res)
@@ -62,6 +75,9 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     }
 
+    /**
+     * Após o sucesso na autenticação será gerado token para utilização nas requests
+     */
     @Override
     protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain,
             Authentication auth) throws IOException {

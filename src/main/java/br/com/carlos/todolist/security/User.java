@@ -9,6 +9,8 @@ import lombok.Setter;
 
 
 /**
+ * Bean simples para servir para geração de token
+ *
  * @author carlos.oliveira
  */
 @Getter

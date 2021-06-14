@@ -10,6 +10,9 @@ import br.com.carlos.todolist.interceptor.ContextoUsuarioInteceptor;
 
 
 /**
+ * Configuração geral para interceptors da aplicação.
+ * Esses interceptors serão aplicados após a validação de autenticação, caso o request seja autenticada
+ *
  * @author carlos.oliveira
  */
 @Component

@@ -22,6 +22,8 @@ import com.auth0.jwt.algorithms.Algorithm;
 
 
 /**
+ * Filtro para autorizar ou não o acesso aos endpoints considerando o token passado na request
+ *
  * @author carlos.oliveira
  */
 public class AuthorizationFilter extends BasicAuthenticationFilter {

@@ -9,13 +9,19 @@ import br.com.carlos.todolist.model.Usuario;
 
 
 /**
+ * Classe do tipo Repositório para gerenciamento de {@link Usuario} e definição de comportamentos específicos
+ *
  * @author carlos.oliveira
  */
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
-    Usuario findByLoginAndPassword(String login, String password);
-
+    /**
+     * Busca de {@link Usuario} com base no login passado
+     *
+     * @param login login alvo que está sendo buscado
+     * @return {@link Usuario} encontrado ou null caso não exista usuário com o login passado
+     */
     Usuario findByLogin(String login);
 
 }

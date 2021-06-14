@@ -1,6 +1,8 @@
 package br.com.carlos.todolist.comum;
 
 
+import static br.com.carlos.todolist.security.SecurityConstantes.LOGIN_URL;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -21,6 +23,7 @@ import br.com.carlos.todolist.model.Usuario;
 import br.com.carlos.todolist.repository.TarefaRepository;
 import br.com.carlos.todolist.repository.UsuarioRepository;
 import br.com.carlos.todolist.security.ContextoUsuario;
+import br.com.carlos.todolist.security.SecurityConstantes;
 import br.com.carlos.todolist.security.User;
 import br.com.carlos.todolist.service.TarefaService;
 import br.com.carlos.todolist.service.UsuarioService;
@@ -84,7 +87,7 @@ public abstract class TodoListTest {
 
     protected Usuario criarUsuario(String login, String password) {
         Usuario usuario = new Usuario(login, password, false);
-        this.usuarioService.salvar(usuario);
+        usuario = this.usuarioService.salvar(usuario);
         return usuario;
     }
 
@@ -98,10 +101,11 @@ public abstract class TodoListTest {
     protected String getToken(Usuario usuario) {
         User user = new User(usuario.getLogin(), usuario.getPassword());
 
-        MvcResult mvcResult = this.mvc.perform(put("/auth")     //
+        MvcResult mvcResult = this.mvc.perform(post(LOGIN_URL)     //
                 .contentType(MediaType.APPLICATION_JSON)        //
                 .content(user.toJson()))                        //
-                .andExpect(status().isOk()).andReturn();
+                .andExpect(status().isOk())//
+                .andReturn();
 
         return mvcResult.getResponse().getContentAsString();
     }
